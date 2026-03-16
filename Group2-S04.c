@@ -2,7 +2,7 @@
 
 int main()
 {
-    bool bGood = 0, bGo = 1, bStart = 1, bOver, bFound = 0;
+    bool bGood = false, bGo = true, bStart = true, bFound = false, bOver;
     int nVal = 0;
 
     coords pos;
@@ -11,17 +11,6 @@ int main()
 
     emptySet(R); emptySet(B);
     emptySet(S); emptySet(T);
-
-    if (bGo)
-        Remove(pos, R, S, T);
-    else if (!bGo)
-        Remove(pos, B, S, T);
-
-
-    if (bGo)
-    {
-        if ()
-    }
 
     return 0;
 }

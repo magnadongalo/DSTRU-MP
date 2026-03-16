@@ -10,7 +10,7 @@ typedef struct coordsTag coords;
 
 typedef struct{
     coords stPos;
-    int    nSize;
+    int    nCardinality;
 } player;
 
 typedef coords grid[3][3];
@@ -41,22 +41,25 @@ bool searchCoords(coords key, grid A)
     return false;
 }
 
-/*void Remove(coords pos, grid A, grid S, grid T)
+void Remove(coords pos, grid R, grid B, grid S, grid T, bool bGo)
 {
-    A[pos.X - 1][pos.Y - 1].X = 0;
-    A[pos.X - 1][pos.Y - 1].Y = 0;
+    if (bGo)
+    {
+        R[pos.X - 1][pos.Y - 1].X = 0;
+        R[pos.X - 1][pos.Y - 1].Y = 0;
+    }
+    else
+    {
+        B[pos.X - 1][pos.Y - 1].X = 0;
+        B[pos.X - 1][pos.Y - 1].Y = 0;
+    }
+    
 
     S[pos.X - 1][pos.Y - 1].X = 0;
     S[pos.X - 1][pos.Y - 1].Y = 0;
 
     T[pos.X - 1][pos.Y - 1].X = 0;
     T[pos.X - 1][pos.Y - 1].Y = 0;
-}*/
-
-void Remove(coords pos, grid A)
-{
-    A[pos.X - 1][pos.Y - 1].X = 0;
-    A[pos.X - 1][pos.Y - 1].Y = 0;
 }
 
 void Add(coords pos, grid A)
@@ -65,20 +68,120 @@ void Add(coords pos, grid A)
     A[pos.X - 1][pos.Y - 1].Y = pos.Y;
 }
 
-void Replace(coords pos)
-{
-
-}
-
-void Expand(coords pos, grid A, grid S, grid T)
+void Expand(coords pos, grid R, grid B, grid S, grid T, bool bGo, bool bFound)
 {
     coords u, d, k, r;
+
+    //u = (a-1, b)
+    u.X = pos.X - 1;
+    u.Y = pos.Y;
+
+    //d = (a+1, b)
+    d.X = pos.X + 1;
+    d.Y = pos.Y;
+
+    //k = (a, b-1)
+    k.X = pos.X;
+    k.Y = pos.Y - 1;
+
+    //r = (a, b+1)
+    r.X = pos.X;
+    r.Y = pos.Y -1;
+
+    Remove(pos, R, B, S, T, bGo);
+
+    if (bGo)
+        Replace(u, R, B, S, T, bGo, bFound);
+    else 
+        Replace(d, R, B, S, T, bGo, bFound);
+
+    Replace(k, R, B, S, T, bGo, bFound);
+    Replace(r, R, B, S, T, bGo, bFound);
 }
 
-void Update(coords pos)
+void Replace(coords pos, grid R, grid B, grid S, grid T, bool bGo, bool bFound)
+{
+    bFound = false;
+
+    if (bGo)
+    {
+        if (searchCoords(pos, B))
+        {
+            Remove(pos, R, B, S, T, bGo);
+            bFound = true;
+        }
+        else if (searchCoords(pos, R))
+            bFound = true;
+        else if (!(searchCoords(pos, R)))
+            Add(pos, R);
+    }
+    else if (!bGo)
+    {
+        if (searchCoords(pos, R))
+        {
+            Remove(pos, R, B, S, T, bGo);
+            bFound = true;
+        }
+        else if (searchCoords(pos, B))
+            bFound = true;
+        else if (!(searchCoords(pos, B)))
+            Add(pos, B);
+    }
+
+    if (bFound)
+    {
+        if (!(searchCoords(pos, S)))
+        {
+            Add(pos, S);
+            bFound = false;
+        }
+        else if(searchCoords(pos, S) && !(searchCoords(pos, T)))
+        {
+            Add(pos, T);
+            Expand(pos, R, B, S, T, bGo, bFound);
+        }
+    }
+}
+
+void Update(coords pos, grid R, grid B, grid S, grid T, bool bGo, bool bFound, bool bGood)
+{
+    bGood = false;
+
+    if (!(searchCoords(pos, S)))
+    {
+        Add(pos, S);
+        bGood = true;
+    }
+
+    if(!bGood && searchCoords(pos, S) && !(searchCoords(pos, T)))
+    {
+        Add(pos, T);
+        Expand(pos, R, B, S, T, bGo, bFound);
+    }
+}
+
+void NextPlayerMove(coords pos, grid R, grid B, grid S, bool bOver, bool bStart, bool bGo, bool bGood)
+{
+    if (!bOver)
+    {
+        if (bStart)
+        {
+            if (bGo)
+                Add(pos, R);
+            else
+                Add (pos, B);
+            
+            Add(pos, S);
+            bGood = true;
+        }
+        else
+        {
+            
+        }
+    }
+}
+
+void GameOver()
 {
 
 }
-
-NextPlayerMove(coords pos);
-GameOver();
