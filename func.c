@@ -7,13 +7,12 @@ struct coordsTag{
 };
 
 typedef struct coordsTag coords;
+typedef coords grid[3][3];
 
 typedef struct{
-    coords stPos;
+    grid   stPlayerGrid;
     int    nCardinality;
 } player;
-
-typedef coords grid[3][3];
 
 void emptySet(grid A)
 {
@@ -153,35 +152,55 @@ void Update(coords pos, grid R, grid B, grid S, grid T, bool bGo, bool bFound, b
         bGood = true;
     }
 
-    if(!bGood && searchCoords(pos, S) && !(searchCoords(pos, T)))
+    if (!bGood && searchCoords(pos, S) && !(searchCoords(pos, T)))
     {
         Add(pos, T);
         Expand(pos, R, B, S, T, bGo, bFound);
     }
 }
 
-void NextPlayerMove(coords pos, grid R, grid B, grid S, bool bOver, bool bStart, bool bGo, bool bGood)
+void NextPlayerMove(coords pos, player R, player B, grid S, grid T, bool bOver, 
+                    bool bStart, bool bGo, bool bFound, bool bGood, int nVal)
 {
     if (!bOver)
     {
         if (bStart)
         {
             if (bGo)
-                Add(pos, R);
+                Add(pos, R.stPlayerGrid);
             else
-                Add (pos, B);
+                Add (pos, B.stPlayerGrid);
             
             Add(pos, S);
             bGood = true;
         }
-        else
+        else if (!bStart)
         {
-            
+            if (bGo && (searchCoords(pos, R.stPlayerGrid) || !bGo) && searchCoords(pos, B.stPlayerGrid))  
+            {
+                Update(pos, R.stPlayerGrid, B.stPlayerGrid, S, T, bGo, bFound, bGood);
+            } 
+        }
+        else if (bGood)
+        {
+            bGood = false;
+            bGo = false;
+            nVal++;
         }
     }
+    else if (bStart && R.nCardinality == 1 && B.nCardinality == 1)
+        bStart = false;
 }
 
-void GameOver()
+void GameOver(bool bOver, player R, player B)
 {
-
+    if (bOver)
+    {
+        if (R.nCardinality > B.nCardinality)
+            printf("That's the game! Red Wins!");
+        else if (R.nCardinality < B.nCardinality)
+            printf("That's the game! Blue Wins!");
+        else if (R.nCardinality == B.nCardinality)
+            printf("That's the game! It's a draw!");
+    }
 }
