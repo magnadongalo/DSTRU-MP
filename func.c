@@ -14,18 +14,6 @@ typedef struct{
     int    nCardinality;
 } player;
 
-void emptySet(grid A)
-{
-    int i, j;
-
-    for (i=0; i<3; i++)
-        for (j=0; j<3; j++)
-        {
-            A[i][j].X = 0;
-            A[i][j].Y = 0;
-        }
-}
-
 bool searchCoords(coords key, grid A)
 {
     int i, j;
@@ -38,6 +26,74 @@ bool searchCoords(coords key, grid A)
         }
     
     return false;
+}
+
+void showGrid(grid R, grid B, grid S, grid T)
+{
+    int i;
+    int row;
+
+    printf("+---+---+---+\n");
+
+    row = 1;
+    for (i=0; i<3; i++)
+    {
+        printf("| ");
+
+        if (R[row][i].X != 0 && R[row][i].Y != 0)
+            printf("X ");
+        else if (B[row][i].X != 0 && B[row][i].Y != 0)
+            printf("O ");
+        else
+            printf("  ");
+    }
+    printf("\n");
+    //printf("| %c | %c | %c |");
+    printf("+---+---+---+\n");
+
+    row++;
+    for (i=0; i<3; i++)
+    {
+        printf("| ");
+
+        if (R[row][i].X != 0 && R[row][i].Y != 0)
+            printf("X ");
+        else if (B[row][i].X != 0 && B[row][i].Y != 0)
+            printf("O ");
+        else
+            printf("  ");
+    }
+    printf("\n");
+    //printf("| %c | %c | %c |\n");
+    printf("+---+---+---+\n");
+
+    row = 1;
+    for (i=0; i<3; i++)
+    {
+        printf("| ");
+
+        if (R[row][i].X != 0 && R[row][i].Y != 0)
+            printf("X ");
+        else if (B[row][i].X != 0 && B[row][i].Y != 0)
+            printf("O ");
+        else
+            printf("  ");
+    }
+    printf("\n");
+    //printf("| %c | %c | %c |\n");
+    printf("+---+---+---+\n");
+}
+
+void emptySet(grid A)
+{
+    int i, j;
+
+    for (i=0; i<3; i++)
+        for (j=0; j<3; j++)
+        {
+            A[i][j].X = 0;
+            A[i][j].Y = 0;
+        }
 }
 
 void Remove(coords pos, grid R, grid B, grid S, grid T, bool bGo)
