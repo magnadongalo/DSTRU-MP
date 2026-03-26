@@ -7,12 +7,11 @@ struct coordsTag{
 };
 
 typedef struct coordsTag coords;
-typedef coords grid[3][3];
 
-typedef struct{
-    grid   stPlayerGrid;
+typedef struct {
+    coords gridField[3][3];
     int    nCardinality;
-} player;
+} grid;
 
 bool searchCoords(coords key, grid A)
 {
@@ -20,11 +19,11 @@ bool searchCoords(coords key, grid A)
 
     for (i=0; i<3; i++)
         for (j=0; j<3; j++)
-        if (key.X == A[i][j].X && key.Y == A[i][j].Y)
-        {
-            return true;
-        }
-    
+            if (key.X == A.gridField[i][j].X && key.Y == A.gridField[i][j].Y)
+            {
+                return true;
+            }
+        
     return false;
 }
 
@@ -40,14 +39,14 @@ void showGrid(grid R, grid B, grid S, grid T)
     {
         printf("| ");
 
-        if (R[row][i].X != 0 && R[row][i].Y != 0)
+        if (R.gridField[row][i].X != 0 && R.gridField[row][i].Y != 0)
             printf("X ");
-        else if (B[row][i].X != 0 && B[row][i].Y != 0)
+        else if (B.gridField[row][i].X != 0 && B.gridField[row][i].Y != 0)
             printf("O ");
         else
             printf("  ");
     }
-    printf("\n");
+    printf("|\n");
     //printf("| %c | %c | %c |");
     printf("+---+---+---+\n");
 
@@ -56,14 +55,14 @@ void showGrid(grid R, grid B, grid S, grid T)
     {
         printf("| ");
 
-        if (R[row][i].X != 0 && R[row][i].Y != 0)
+        if (R.gridField[row][i].X != 0 && R.gridField[row][i].Y != 0)
             printf("X ");
-        else if (B[row][i].X != 0 && B[row][i].Y != 0)
+        else if (B.gridField[row][i].X != 0 && B.gridField[row][i].Y != 0)
             printf("O ");
         else
             printf("  ");
     }
-    printf("\n");
+    printf("|\n");
     //printf("| %c | %c | %c |\n");
     printf("+---+---+---+\n");
 
@@ -72,14 +71,14 @@ void showGrid(grid R, grid B, grid S, grid T)
     {
         printf("| ");
 
-        if (R[row][i].X != 0 && R[row][i].Y != 0)
+        if (R.gridField[row][i].X != 0 && R.gridField[row][i].Y != 0)
             printf("X ");
-        else if (B[row][i].X != 0 && B[row][i].Y != 0)
+        else if (B.gridField[row][i].X != 0 && B.gridField[row][i].Y != 0)
             printf("O ");
         else
             printf("  ");
     }
-    printf("\n");
+    printf("|\n");
     //printf("| %c | %c | %c |\n");
     printf("+---+---+---+\n");
 }
@@ -91,36 +90,43 @@ void emptySet(grid A)
     for (i=0; i<3; i++)
         for (j=0; j<3; j++)
         {
-            A[i][j].X = 0;
-            A[i][j].Y = 0;
+            A.gridField[i][j].X = 0;
+            A.gridField[i][j].Y = 0;
         }
+
+    A.nCardinality = 0;
 }
 
 void Remove(coords pos, grid R, grid B, grid S, grid T, bool bGo)
 {
     if (bGo)
     {
-        R[pos.X - 1][pos.Y - 1].X = 0;
-        R[pos.X - 1][pos.Y - 1].Y = 0;
+        R.gridField[pos.X - 1][pos.Y - 1].X = 0;
+        R.gridField[pos.X - 1][pos.Y - 1].Y = 0;
+        R.nCardinality--;
     }
     else
     {
-        B[pos.X - 1][pos.Y - 1].X = 0;
-        B[pos.X - 1][pos.Y - 1].Y = 0;
+        B.gridField[pos.X - 1][pos.Y - 1].X = 0;
+        B.gridField[pos.X - 1][pos.Y - 1].Y = 0;
+        B.nCardinality--;
     }
     
 
-    S[pos.X - 1][pos.Y - 1].X = 0;
-    S[pos.X - 1][pos.Y - 1].Y = 0;
+    S.gridField[pos.X - 1][pos.Y - 1].X = 0;
+    S.gridField[pos.X - 1][pos.Y - 1].Y = 0;
+    S.nCardinality--;
 
-    T[pos.X - 1][pos.Y - 1].X = 0;
-    T[pos.X - 1][pos.Y - 1].Y = 0;
+    T.gridField[pos.X - 1][pos.Y - 1].X = 0;
+    T.gridField[pos.X - 1][pos.Y - 1].Y = 0;
+    T.nCardinality--;
 }
 
 void Add(coords pos, grid A)
 {
-    A[pos.X - 1][pos.Y - 1].X = pos.X;
-    A[pos.X - 1][pos.Y - 1].Y = pos.Y;
+    A.gridField[pos.X - 1][pos.Y - 1].X = pos.X;
+    A.gridField[pos.X - 1][pos.Y - 1].Y = pos.Y;
+    A.nCardinality++;
 }
 
 void Expand(coords pos, grid R, grid B, grid S, grid T, bool bGo, bool bFound)
@@ -162,7 +168,9 @@ void Replace(coords pos, grid R, grid B, grid S, grid T, bool bGo, bool bFound)
     {
         if (searchCoords(pos, B))
         {
-            Remove(pos, R, B, S, T, bGo);
+            B.gridField[pos.X - 1][pos.Y - 1].X = 0;
+            B.gridField[pos.X - 1][pos.Y - 1].Y = 0;
+            B.nCardinality--;
             bFound = true;
         }
         else if (searchCoords(pos, R))
@@ -174,7 +182,9 @@ void Replace(coords pos, grid R, grid B, grid S, grid T, bool bGo, bool bFound)
     {
         if (searchCoords(pos, R))
         {
-            Remove(pos, R, B, S, T, bGo);
+            R.gridField[pos.X - 1][pos.Y - 1].X = 0;
+            R.gridField[pos.X - 1][pos.Y - 1].Y = 0;
+            R.nCardinality--;
             bFound = true;
         }
         else if (searchCoords(pos, B))
@@ -215,7 +225,7 @@ void Update(coords pos, grid R, grid B, grid S, grid T, bool bGo, bool bFound, b
     }
 }
 
-void NextPlayerMove(coords pos, player R, player B, grid S, grid T, bool bOver, 
+void NextPlayerMove(coords pos, grid R, grid B, grid S, grid T, bool bOver, 
                     bool bStart, bool bGo, bool bFound, bool bGood, int nVal)
 {
     if (!bOver)
@@ -223,18 +233,18 @@ void NextPlayerMove(coords pos, player R, player B, grid S, grid T, bool bOver,
         if (bStart)
         {
             if (bGo)
-                Add(pos, R.stPlayerGrid);
+                Add(pos, R);
             else
-                Add (pos, B.stPlayerGrid);
+                Add(pos, B);
             
             Add(pos, S);
             bGood = true;
         }
         else if (!bStart)
         {
-            if (bGo && (searchCoords(pos, R.stPlayerGrid) || !bGo) && searchCoords(pos, B.stPlayerGrid))  
+            if (bGo && (searchCoords(pos, R) || !bGo) && searchCoords(pos, B))  
             {
-                Update(pos, R.stPlayerGrid, B.stPlayerGrid, S, T, bGo, bFound, bGood);
+                Update(pos, R, B, S, T, bGo, bFound, bGood);
             } 
         }
         else if (bGood)
@@ -248,7 +258,7 @@ void NextPlayerMove(coords pos, player R, player B, grid S, grid T, bool bOver,
         bStart = false;
 }
 
-void GameOver(bool bOver, player R, player B)
+void GameOver(bool bOver, grid R, grid B)
 {
     if (bOver)
     {
