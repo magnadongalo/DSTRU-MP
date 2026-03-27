@@ -13,6 +13,62 @@ typedef struct {
     int    nCardinality;
 } grid;
 
+typedef struct {
+    char gridChars[2][3][3];
+} playingField;
+
+void titleScreen();
+
+void playerTurn(int n, bool bGo)
+{
+    switch (n)
+    {
+    case 1:
+            //Red turn!
+            bGo = true;
+            //PlaySound("red.wav", NULL, SND_ASYNC | SND_FILENAME);
+            Sleep(2500);
+        break;
+    case 2:
+            //Blue turn!
+            bGo = false;
+            //PlaySound("blue.wav", NULL, SND_ASYNC | SND_FILENAME);
+            Sleep(2500);
+        break;
+    }
+}
+
+void getPos(coords *pos)
+{
+    int temp;
+
+    do
+    {
+        printf("Row: ");
+        scanf("%d", &temp);
+
+        if (temp >= 1 && temp <= 3)
+            pos->X = temp;
+        else
+            printf("Invalid input...\n");
+    } while (temp < 1 || temp > 3);
+    
+    temp = 0;
+
+    do
+    {
+        printf("Column");
+        scanf("%d", &temp);
+        
+        if (temp >= 1 && temp <= 3)
+            pos->Y = temp;
+        else
+            printf("Invalid input...\n");
+    } while (temp < 1 || temp > 3);
+    
+    printf("\n");
+}
+
 bool searchCoords(coords key, grid A)
 {
     int i, j;
@@ -27,60 +83,32 @@ bool searchCoords(coords key, grid A)
     return false;
 }
 
-void showGrid(grid R, grid B, grid S, grid T)
+//UNFINISHED
+void updateGrid(playingField grSym, grid M, grid R, grid B)
 {
-    int i;
-    int row;
+    int i, j;
 
-    printf("+---+---+---+\n");
-
-    row = 1;
     for (i=0; i<3; i++)
-    {
-        printf("| ");
+        for (j=0; j<3; j++)
+        {
+            if(M.gridField[i][j].X == 0 && M.gridField[i][j].Y == 0)
+            {
+                if (R.gridField[i][j].X != 0 && R.gridField[i][j].Y != 0)
+                    strcpy(grSym.gridChars, "R1");
+            }
+        }
+}
 
-        if (R.gridField[row][i].X != 0 && R.gridField[row][i].Y != 0)
-            printf("X ");
-        else if (B.gridField[row][i].X != 0 && B.gridField[row][i].Y != 0)
-            printf("O ");
-        else
-            printf("  ");
-    }
-    printf("|\n");
-    //printf("| %c | %c | %c |");
-    printf("+---+---+---+\n");
-
-    row++;
-    for (i=0; i<3; i++)
-    {
-        printf("| ");
-
-        if (R.gridField[row][i].X != 0 && R.gridField[row][i].Y != 0)
-            printf("X ");
-        else if (B.gridField[row][i].X != 0 && B.gridField[row][i].Y != 0)
-            printf("O ");
-        else
-            printf("  ");
-    }
-    printf("|\n");
-    //printf("| %c | %c | %c |\n");
-    printf("+---+---+---+\n");
-
-    row = 1;
-    for (i=0; i<3; i++)
-    {
-        printf("| ");
-
-        if (R.gridField[row][i].X != 0 && R.gridField[row][i].Y != 0)
-            printf("X ");
-        else if (B.gridField[row][i].X != 0 && B.gridField[row][i].Y != 0)
-            printf("O ");
-        else
-            printf("  ");
-    }
-    printf("|\n");
-    //printf("| %c | %c | %c |\n");
-    printf("+---+---+---+\n");
+void showGrid(grid R, grid B, playingField grSym)
+{
+    printf("     c1   c2   c3\n");
+    printf("   +----+----+----+\n");
+    printf("r1 | %s | %s | %s |\n", grSym.gridChars[0][0], grSym.gridChars[0][1], grSym.gridChars[0][2]);
+    printf("   +----+----+----+\n");
+    printf("r2 | %s | %s | %s |\n", grSym.gridChars[1][0], grSym.gridChars[1][1], grSym.gridChars[1][2]);
+    printf("   +----+----+----+\n");
+    printf("r3 | %s | %s | %s |\n", grSym.gridChars[2][0], grSym.gridChars[2][1], grSym.gridChars[2][2]);
+    printf("   +----+----+----+\n");
 }
 
 void emptySet(grid A)

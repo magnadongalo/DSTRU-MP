@@ -7,17 +7,27 @@ int main()
     int nVal = 0;
 
     coords pos;
-    grid R, B, S, T;
+    grid R, B, S, T, F;
+    playingField display;
 
     emptySet(R); emptySet(B);
     emptySet(S); emptySet(T);
 
+    titleScreen();
+
+    showGrid(R, B, display);
+
     do
     {
-        printf("The game begins!\n");
-        Sleep(3000);
+        playerTurn(1, bGo);
+        getPos(&pos);
+        NextPlayerMove(pos, R, B, S, T, bOver, bStart, bGo, bFound, bGood, nVal);
+        showGrid(R, B, display);
 
-        showGrid(R, B, S, T);
+        playerTurn(2, bGo);
+        getPos(&pos);
+        NextPlayerMove(pos, R, B, S, T, bOver, bStart, bGo, bFound, bGood, nVal);
+        showGrid(R, B, display);
     } while (!bOver);
     
     GameOver(bOver, R, B);    
