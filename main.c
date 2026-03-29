@@ -22,6 +22,7 @@ int main()
 
     do
     {
+
         if (i % 2 == 0)
             nTurn = 1;
         if (i % 2 == 1)
@@ -32,13 +33,22 @@ int main()
 
         printf("Turn %d\n", nVal);
 
+        printf("Free spaces: %d\n", F.nCardinality);
+
         getPos(&pos);
 
-        Subtract(pos, &F);
-        NextPlayerMove(pos, &R, &B, &S, &T, &F, bOver, &bStart, &bGo, bFound, &bGood, &nVal);
-        updateGrid(pos, display[pos.X - 1][pos.Y - 1], R, B, S, T, F);
+        NextPlayerMove(display, pos, &R, &B, &S, &T, &F, bOver, &bStart, &bGo, bFound, &bGood, &nVal);
+        updateF(&F, &R, &B);
+        printf("Free spaces: %d\n", F.nCardinality);
+        // F.nCardinality = 9 - R.nCardinality + B.nCardinality;
+
+        updateGrid(display, R, B, S, T, F);
 
         i++;
+
+        if ((F.nCardinality <= 3 || nVal >= 20 || !bStart) && ((R.nCardinality > 0 && B.nCardinality == 0) || (R.nCardinality == 0 && B.nCardinality > 0)))
+            bOver = true;
+
     } while (!bOver);
 
     GameOver(bOver, R, B);

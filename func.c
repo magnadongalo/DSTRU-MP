@@ -3,8 +3,6 @@
 #include <string.h>
 #include <windows.h>
 
-#include "main.c"
-
 struct coordsTag
 {
     int X,
@@ -22,7 +20,7 @@ typedef struct
 typedef char pairedChar[3];
 typedef pairedChar playingField[3][3];
 
-void Expand(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo, bool bFound);
+void Expand(playingField display, coords pos, grid *R, grid *B, grid *S, grid *T, bool bGo, bool bFound);
 
 void titleScreen()
 {
@@ -101,28 +99,31 @@ bool searchCoords(coords key, grid A)
         return false;
 }
 
-// UNFINISHED
-void updateGrid(coords pos, char string[], grid R, grid B, grid S, grid T, grid F)
+void updateGrid(playingField display, grid R, grid B, grid S, grid T, grid F)
 {
-    if (!F.bTaken[pos.X - 1][pos.Y - 1])
-    {
-        if (R.bTaken[pos.X - 1][pos.Y - 1])
+    int i, j;
+
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 3; j++)
         {
-            if (S.bTaken[pos.X - 1][pos.Y - 1] && !T.bTaken[pos.X - 1][pos.Y - 1])
-                strcpy(string, "R1");
-            else if (S.bTaken[pos.X - 1][pos.Y - 1] && T.bTaken[pos.X - 1][pos.Y - 1])
-                strcpy(string, "R2");
+
+            if (R.bTaken[i][j])
+            {
+                if (S.bTaken[i][j])
+                    strcpy(display[i][j], "R1");
+                if (T.bTaken[i][j])
+                    strcpy(display[i][j], "R2");
+            }
+            else if (B.bTaken[i][j])
+            {
+                if (S.bTaken[i][j])
+                    strcpy(display[i][j], "B1");
+                if (T.bTaken[i][j])
+                    strcpy(display[i][j], "B2");
+            }
+            else
+                strcpy(display[i][j], "  ");
         }
-        else if (B.bTaken[pos.X - 1][pos.Y - 1])
-        {
-            if (S.bTaken[pos.X - 1][pos.Y - 1] && !T.bTaken[pos.X - 1][pos.Y - 1])
-                strcpy(string, "B1");
-            else if (S.bTaken[pos.X - 1][pos.Y - 1] && T.bTaken[pos.X - 1][pos.Y - 1])
-                strcpy(string, "B2");
-        }
-    }
-    else if (F.bTaken[pos.X - 1][pos.Y - 1])
-        strcpy(string, "  ");
 }
 
 void showGrid(playingField grSym)
@@ -180,7 +181,27 @@ void Subtract(coords pos, grid *A)
     A->nCardinality -= 1;
 }
 
-void Remove(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo)
+void updateF(grid *F, grid *R, grid *B)
+{
+    int i, j;
+    coords pos;
+
+    F->nCardinality = 9;
+
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 3; j++)
+        {
+            if (R->bTaken[i][j] || B->bTaken[i][j])
+            {
+                pos.X = i + 1;
+                pos.Y = j + 1;
+
+                Subtract(pos, F);
+            }
+        }
+}
+
+void Remove(coords pos, grid *R, grid *B, grid *S, grid *T, bool bGo)
 {
     printf("Passed Remove function\n");
 
@@ -192,10 +213,10 @@ void Remove(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo)
     Subtract(pos, S);
     Subtract(pos, T);
 
-    Add(pos, F);
+    // Add(pos, F); grid *F
 }
 
-void Replace(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo, bool *bFound)
+void Replace(playingField display, coords pos, grid *R, grid *B, grid *S, grid *T, bool bGo, bool *bFound)
 {
     printf("Passed Replace function\n");
 
@@ -206,7 +227,7 @@ void Replace(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo, 
         if (searchCoords(pos, *B))
         {
             printf("passed 1");
-            Subtract(pos, R);
+            Subtract(pos, B);
             *bFound = true;
         }
         else if (searchCoords(pos, *R))
@@ -218,9 +239,9 @@ void Replace(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo, 
         {
             printf("passed 3");
             Add(pos, R);
-            Add(pos, S);
+            // Add(pos, S);
 
-            updateGrid(pos, display[pos.X - 1][pos.Y - 1], R, B, S, T, F);
+            // updateGrid(display[pos.X - 1][pos.Y - 1], *R, *B, *S, *T, *F);
         }
     }
     else if (!bGo)
@@ -246,12 +267,12 @@ void Replace(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo, 
         else if (searchCoords(pos, *S) && !(searchCoords(pos, *T)))
         {
             Add(pos, T);
-            Expand(pos, R, B, S, T, F, bGo, *bFound);
+            Expand(display, pos, R, B, S, T, bGo, *bFound);
         }
     }
 }
 
-void Expand(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo, bool bFound)
+void Expand(playingField display, coords pos, grid *R, grid *B, grid *S, grid *T, bool bGo, bool bFound)
 {
     printf("Passed expand function\n");
 
@@ -273,18 +294,18 @@ void Expand(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo, b
     r.X = pos.X;
     r.Y = pos.Y + 1;
 
-    Remove(pos, R, B, S, T, F, bGo);
+    Remove(pos, R, B, S, T, bGo);
 
     if (bGo)
-        Replace(u, R, B, S, T, F, bGo, &bFound);
+        Replace(display, u, R, B, S, T, bGo, &bFound);
     else
-        Replace(d, R, B, S, T, F, bGo, &bFound);
+        Replace(display, d, R, B, S, T, bGo, &bFound);
 
-    Replace(k, R, B, S, T, F, bGo, &bFound);
-    Replace(r, R, B, S, T, F, bGo, &bFound);
+    Replace(display, k, R, B, S, T, bGo, &bFound);
+    Replace(display, r, R, B, S, T, bGo, &bFound);
 }
 
-void Update(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo, bool bFound, bool *bGood)
+void Update(playingField display, coords pos, grid *R, grid *B, grid *S, grid *T, bool bGo, bool bFound, bool *bGood)
 {
     printf("Passed\n");
 
@@ -292,59 +313,40 @@ void Update(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bGo, b
 
     if (!(searchCoords(pos, *S)))
     {
-        if (bGo)
-        {
-
-            Add(pos, R);
-        }
-
-        else
-            Add(pos, B);
-
         Add(pos, S);
-        *bGood = true;
+        *bGood = !*bGood;
     }
-
-    if (!*bGood && searchCoords(pos, *S) && !(searchCoords(pos, *T)))
+    else if (!*bGood && searchCoords(pos, *S) && !(searchCoords(pos, *T)))
     {
-        if (bGo)
-        {
-            Add(pos, R);
-        }
-
-        else
-            Add(pos, B);
-
+        printf("yes\n");
         Add(pos, T);
+        printf("%d", T->bTaken[pos.X - 1][pos.Y - 1]);
+        *bGood = !*bGood;
     }
     else if (!*bGood && searchCoords(pos, *S) && (searchCoords(pos, *T)))
     {
         printf("This was an expand turn\n");
-        Remove(pos, R, B, S, T, F, bGo);
-        Expand(pos, R, B, S, T, F, bGo, bFound);
+        Expand(display, pos, R, B, S, T, bGo, bFound);
     }
 }
 
-void NextPlayerMove(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bOver,
+void NextPlayerMove(playingField display, coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, bool bOver,
                     bool *bStart, bool *bGo, bool bFound, bool *bGood, int *nVal)
 {
+    printf("Free spaces: %d\n", F->nCardinality);
+
     if (!bOver)
     {
         if (*bStart)
         {
             printf("This was Start Turn\n");
             if (*bGo)
-            {
                 Add(pos, R);
-            }
-
             else
                 Add(pos, B);
 
             Add(pos, S);
             *bGood = true;
-
-            *nVal += 1;
         }
         else if (!*bStart)
         {
@@ -352,18 +354,20 @@ void NextPlayerMove(coords pos, grid *R, grid *B, grid *S, grid *T, grid *F, boo
 
             if ((*bGo && searchCoords(pos, *R)) || (!*bGo && searchCoords(pos, *B)))
             {
+                Update(display, pos, R, B, S, T, *bGo, bFound, bGood);
+                *bGood = true;
             }
-
-            Update(pos, R, B, S, T, F, *bGo, bFound, bGood);
         }
-        else if (bGood)
-        {
-            *bGood = false;
-            *bGo = false;
-        }
+    }
 
-        if (*bStart && R->nCardinality == 1 && B->nCardinality == 1)
-            *bStart = false;
+    if (*bStart && R->nCardinality == 1 && B->nCardinality == 1)
+        *bStart = false;
+
+    if (!bOver && *bGood)
+    {
+        *bGood = !*bGood;
+        *bGo = !*bGo;
+        *nVal += 1;
     }
 }
 
