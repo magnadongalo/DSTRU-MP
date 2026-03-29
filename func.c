@@ -106,24 +106,22 @@ void updateGrid(playingField display, grid R, grid B, grid S, grid T, grid F)
     for (i=0; i<3; i++)
         for (j=0; j<3; j++)
         {
-            if (!F.bTaken[i][j])
+            
+            if (R.bTaken[i][j])
             {
-                if (R.bTaken[i][j])
-                {
-                    if (S.bTaken[i][j] && !T.bTaken[i][j])
-                        strcpy(display[i][j], "R1");
-                    else if (S.bTaken[i][j] && T.bTaken[i][j])
-                        strcpy(display[i][j], "R2");
-                }
-                else if (B.bTaken[i][j])
-                {
-                    if (S.bTaken[i][j] && !T.bTaken[i][j])
-                        strcpy(display[i][j], "B1");
-                    else if (S.bTaken[i][j] && T.bTaken[i][j])
-                        strcpy(display[i][j], "B2");
-                }
+                if (S.bTaken[i][j])
+                    strcpy(display[i][j], "R1");
+                else if (T.bTaken[i][j])
+                    strcpy(display[i][j], "R2");
             }
-            else if (F.bTaken[i][j])
+            else if (B.bTaken[i][j])
+            {
+                if (S.bTaken[i][j])
+                    strcpy(display[i][j], "B1");
+                else if (T.bTaken[i][j])
+                    strcpy(display[i][j], "B2");
+            }
+            else 
                 strcpy(display[i][j], "  ");
         }
 }
@@ -238,8 +236,7 @@ void Replace(playingField display, coords pos, grid *R, grid *B, grid *S, grid *
             Subtract(pos, B);
             *bFound = true;
         }
-        
-        if (searchCoords(pos, *R))
+        else if (searchCoords(pos, *R))
         {
             printf("passed 2");
             *bFound = true;
@@ -260,8 +257,7 @@ void Replace(playingField display, coords pos, grid *R, grid *B, grid *S, grid *
             Subtract(pos, R);
             *bFound = true;
         }
-
-        if (searchCoords(pos, *B))
+        else if (searchCoords(pos, *B))
             *bFound = true;
         else if (!(searchCoords(pos, *B)))
             Add(pos, B);
@@ -326,8 +322,7 @@ void Update(playingField display, coords pos, grid *R, grid *B, grid *S, grid *T
         Add(pos, S);
         *bGood = !*bGood;
     }
-
-    if (!*bGood && searchCoords(pos, *S) && !(searchCoords(pos, *T)))
+    else if (!*bGood && searchCoords(pos, *S) && !(searchCoords(pos, *T)))
     {
         Add(pos, T);
         Expand(display, pos, R, B, S, T, F, bGo, bFound);

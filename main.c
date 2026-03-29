@@ -35,15 +35,15 @@ int main()
 
         getPos(&pos);
 
-        //Subtract(pos, &F);
-
         NextPlayerMove(display, pos, &R, &B, &S, &T, &F, bOver, &bStart, &bGo, bFound, &bGood, &nVal);
         updateF(&F, &R, &B);
+
+        //F.nCardinality = 9 - R.nCardinality + B.nCardinality;
         updateGrid(display, R, B, S, T, F);
 
         i++;
 
-        if ((F.nCardinality == 3 || nVal >= 20 || !bStart) && ((R.nCardinality > 0 && B.nCardinality == 0) || (R.nCardinality == 0 && B.nCardinality > 0)))
+        if ((F.nCardinality <= 3 || nVal >= 20 || !bStart) && ((R.nCardinality > 0 && B.nCardinality == 0) || (R.nCardinality == 0 && B.nCardinality > 0)))
             bOver = true;
 
     } while (!bOver);
